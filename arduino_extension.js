@@ -504,12 +504,10 @@
     device = potentialDevices.shift();
     if (!device) return;
 
-    device.open({ stopBits: 0, bitRate: 57600, ctsFlowControl: 0 });
+    device.open({ stopBits: 0, bitRate: 57600, ctsFlowControl: 0 },
+		deviceOpened);
     console.log('Attempting connection with ' + device.id);
-    device.set_receive_handler(function(data) {
-      var inputData = new Uint8Array(data);
-      processInput(inputData);
-    });
+   
 
     poller = setInterval(function() {
       queryFirmware();
@@ -525,6 +523,12 @@
     }, 5000);
   }
 
+    function deviceOpened() {
+	device.set_receive_handler(function(data) {
+	    var inputData = new Uint8Array(data);
+	    processInput(inputData);
+	});
+    }
   ext._shutdown = function() {
     // TODO: Bring all pins down
     if (device) device.close();
